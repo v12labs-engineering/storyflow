@@ -1,0 +1,41 @@
+.select {
+    width: 100%;
+    appearance: none;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+}
+.select :global(.storyflow-select__control) {
+   border-radius: 5px;
+   border: 2px solid var(--gray-color);
+   box-shadow: none !important;
+   background: transparent;
+   outline: none !important;
+   cursor: pointer !important;
+   transition: all 0.1s ease-in-out;
+}
+.select :global(.storyflow-select__control:hover) {
+    border: 2px solid var(--gray-color);
+}
+.select :global(.storyflow-select__control:focus) {
+    border: 2px solid var(--primary-color) !important;
+    transition: all 0.1s ease-in-out !important;
+}
+.select :global(.storyflow-select__single-value) {
+    color: inherit
+}   
+.select :global(.storyflow-select__option:hover) {
+    background-color: var(--secondary-color);
+    cursor: pointer;
+}
+.select :global(.storyflow-select__option--is-focused) {
+    background-color: var(--secondary-color);
+    cursor: pointer;
+}
+.select :global(.storyflow-select__option--is-selected) {
+    background-color: var(--primary-color);
+    cursor: pointer;
+}
+.select :global(.storyflow-select__option--is-selected:hover) {
+    background-color: var(--primary-color);
+}

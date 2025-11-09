@@ -1,0 +1,32 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**"
+      ]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "tsc": {
+      "outputs": []
+    },
+    "dev": {
+      "cache": false
+    }
+  },
+  "globalEnv": [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_STORYFLOW_WIDGET",
+    "NEXT_PUBLIC_PEXELS_KEY",
+    "NEXT_PUBLIC_CRISP_WEBSITE_ID",
+    "BACKBLAZE_APP_ID",
+    "BACKBLAZE_APP_KEY"
+  ]
+}

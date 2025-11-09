@@ -1,0 +1,24 @@
+.input {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.inputField {
+    appearance: none;
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    border: 2px solid var(--gray-color);
+    background: transparent;
+    outline: none;
+    padding: 0.5rem 0.75rem;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    transition: all 0.1s ease-in-out;
+}
+.inputField:focus {
+    border-color: var(--primary-color);
+    transition: all 0.1s ease-in-out;
+}

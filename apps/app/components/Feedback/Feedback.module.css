@@ -1,0 +1,29 @@
+.feedback {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+.footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.feedback form div {
+    margin-top: 10px;
+}
+.emojis {
+    composes: footer;
+    width: 50%;
+}
+.emojis svg {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.emojis svg:hover {
+    transform: scale(1.2);
+}

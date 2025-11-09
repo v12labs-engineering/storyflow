@@ -1,0 +1,37 @@
+.button {
+    display: inline-block;
+    width: 100%;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    color: white;
+    background-color: var(--primary-color);
+    font-family: inherit;
+    font-size: 2rem;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+        touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+         -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.small .button {
+    font-size: 0.6em;
+    padding: 2px 6px;
+}
+.medium .button {
+    font-size: 1em;
+    padding: 6px 12px;
+}
+.large .button {
+    font-size: 1.4em;
+    padding: 8px 14px;
+}

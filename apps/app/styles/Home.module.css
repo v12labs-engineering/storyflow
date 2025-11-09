@@ -1,0 +1,58 @@
+.storyLayout {
+  /* margin: 2rem; */
+}
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.main .title {
+  width: 50%;
+}
+.main .title h1 {
+  font-size: 2rem;
+}
+.main .title span {
+  color: var(--primary-color);
+}
+
+.main .title p {
+  font-size: 1.2rem;
+}
+
+.main .title button {
+  width: 40%;
+  position: relative;
+}
+
+.main .title button svg {
+  position: relative;
+  display: inline-block;
+  top: 4px;
+}
+
+@media (max-width: 600px) {
+  .main {
+    margin-top: 3rem;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .main .title {
+    width: 100%;
+  }
+  .main .title h1 {
+    font-family: inherit;
+    font-size: 1.5rem;
+    letter-spacing: -1px;
+    font-weight: 700;
+  }
+  .main .title p {
+    margin-bottom: 2rem;
+  }
+  .main .title button {
+    width: 100%;
+    margin-bottom: 3rem;
+  }
+}

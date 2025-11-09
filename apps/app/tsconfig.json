@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@styles/*": [
+        "./styles/*"
+      ],
+      "@components/*": [
+        "./components/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@supabase/*": [
+        "./supabase/*"
+      ],
+      "@backblaze/*": [
+        "./backblaze/*"
+      ],
+      "@lib/*": [
+        "lib/*"
+      ]
+    },
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve"
+  },
+  "include": [
+    "next-env.d.ts",
+    "next.config.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "extends": "tsconfig/nextjs.json"
+}

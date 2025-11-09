@@ -1,0 +1,36 @@
+{
+  "name": "storyflow",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "tsc": "turbo run tsc",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "workspace:*",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.3",
+    "prettier": "latest",
+    "turbo": "latest"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "packageManager": "pnpm@7.13.4",
+  "lint-staged": {
+    "*.{tsx, ts}": [
+      "eslint --fix --quiet"
+    ],
+    "*.{jsx, js}": [
+      "eslint --fix --quiet"
+    ]
+  }
+}

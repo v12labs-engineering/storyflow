@@ -1,0 +1,63 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Outfit", Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
+    Helvetica Neue, sans-serif;
+  font-size: 16px;
+  height: 100%;
+  color: var(--text-color);
+}
+
+a {
+  color: #000;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#__next {
+  height: 100%;
+}
+
+.react-colorful__saturation-pointer {
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 0 !important;
+}
+
+.react-colorful__hue {
+  height: 20px !important;
+  margin-top: 0.5rem;
+  border-radius: 0 !important;
+}
+
+.react-colorful__pointer .react-colorful__hue-pointer {
+  width: 20px;
+  height: 20px;
+  border-radius: 0 !important;
+}
+
+
+.react-colorful__hue .react-colorful__hue-pointer {
+  width: 20px;
+  height: 20px;
+  border-radius: 0 !important;
+}
+
+.react-player video {
+  max-height: 740px;
+}
+
+:root {
+  --primary-color: #ff7e1d;
+  --secondary-color: #F7EDDF;
+  --gray-color: rgba(190, 172, 143, 0.2);
+  --text-color: #414141;
+}
+
+/* @media (max-width: 600px) {
+  
+} */

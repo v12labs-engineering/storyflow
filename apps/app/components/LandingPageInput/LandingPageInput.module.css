@@ -1,0 +1,16 @@
+.container {
+    width: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.container button {
+    width: 100% !important;
+    margin-left: 15px;
+    border: 2px solid var(--gray-color);
+    border-color: var(--primary-color);
+    /* background-color: transparent; */
+}
+.container button span {
+    color: white !important;
+}
