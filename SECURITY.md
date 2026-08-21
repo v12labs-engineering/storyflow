@@ -17,6 +17,10 @@ Include the affected revision, component, reproduction steps, impact, and any kn
 - Rotate any credential that enters a commit, log, screenshot, or build artifact.
 - Upgrade unsupported framework and authentication libraries before production deployment.
 
+## Known credential follow-up
+
+An editor-service bearer was previously committed in client-facing source. The current code no longer contains that bearer or its service host, but repository changes cannot invalidate a credential or erase earlier Git objects. The repository owner must revoke and rotate the old credential outside this codebase, then coordinate a separate Git-history purge if the repository is intended for public release. Do not rewrite shared history until rotation is complete and collaborators have agreed on the migration procedure.
+
 ## Supported versions
 
 This prototype does not publish versioned security-support windows. Security fixes target the current default branch.

@@ -19,7 +19,8 @@ The previous README mentioned a separate `studio` app; no such workspace exists.
 ## Features present in the code
 
 - Supabase email magic-link sign-in
-- Creator dashboard for listing, adding, editing, and deleting story records
+- Responsive creator dashboard with story search, status filters, performance metrics, integration health, and story actions
+- Development-only synthetic demo mode for evaluating the authenticated dashboard and draft-creation flow without production accounts
 - Image/video uploads to a Backblaze B2 media bucket
 - AMP story markup generation from image, video, YouTube, and CTA records
 - Publishing generated AMP HTML to Backblaze B2
@@ -61,6 +62,7 @@ cp apps/app/.env.example apps/app/.env.local
 | `BACKBLAZE_APP_KEY` | Upload/publish routes | Server-only Backblaze application key. |
 | `STORYFLOW_EDITOR_API_URL` | Visual editor | Server-only editor service base URL. HTTPS is required outside local development. |
 | `STORYFLOW_EDITOR_API_TOKEN` | Visual editor | Server-only bearer token used by the authenticated editor proxy. |
+| `STORYFLOW_DEMO_MODE` | Optional local demo | Set to `true` only in development to use synthetic local dashboard data. The application refuses demo mode in production. |
 
 Do not place Backblaze credentials in a `NEXT_PUBLIC_` variable. The former tracked `.env` files were removed; only `.env.example` should be committed.
 Do not expose the editor service token through a `NEXT_PUBLIC_` variable or client-side service module.
@@ -95,6 +97,8 @@ pnpm --filter storyflow-widget dev       # http://localhost:6010/main.bundle.js
 ```
 
 Or start all development tasks with `pnpm dev`.
+
+For a local UI evaluation without a Supabase account, add `STORYFLOW_DEMO_MODE=true` to `apps/app/.env.local` before starting the product app. Demo stories and drafts remain synthetic and browser-local; never enable this mode in production.
 
 The unauthenticated Storyflow landing page is at `http://localhost:4010/`; authenticated creator routes redirect to `/login` when no Supabase session is present.
 
