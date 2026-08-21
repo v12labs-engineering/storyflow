@@ -10,22 +10,9 @@ class ApiService {
   base: AxiosInstance
   constructor() {
     this.base = axios.create({
-      // baseURL: "http://localhost:8080",
-      baseURL: "https://burly-note-production.up.railway.app",
-      headers: {
-        Authorization: "Bearer QYT8s1NavSTpTAxURji98Fpg",
-      },
-    })
-  }
-
-  signin(props: any) {
-    return new Promise((resolve, reject) => {
-      this.base
-        .post("/auth/signin", props)
-        .then(({ data }) => {
-          resolve(data)
-        })
-        .catch((err) => reject(err))
+      // Keep editor-service credentials out of the browser bundle. The Next.js
+      // API route authenticates the Storyflow user before forwarding requests.
+      baseURL: "/api/editor",
     })
   }
 

@@ -16,13 +16,13 @@
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
-    "husky": "^8.0.0",
-    "lint-staged": "^13.0.3",
-    "prettier": "latest",
-    "turbo": "latest"
+    "husky": "^8.0.3",
+    "lint-staged": "^13.3.0",
+    "prettier": "2.8.8",
+    "turbo": "1.13.4"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0 <21"
   },
   "packageManager": "pnpm@7.13.4",
   "lint-staged": {

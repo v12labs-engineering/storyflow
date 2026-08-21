@@ -28,11 +28,34 @@ const AMP_HTML = (stories: string) => `
         </body>
     </html>`;
 
+function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeHttpUrl(value: unknown): string | null {
+  try {
+    const url = new URL(String(value ?? ''));
+    return url.protocol === 'http:' || url.protocol === 'https:' ? escapeHtml(url.href) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeMediaId(value: unknown): string {
+  return String(value ?? '').replace(/[^a-zA-Z0-9_-]/g, '');
+}
+
 function generatePageOutLinks(url: string, text: string = 'Read more'): string | null {
-  if (!url) return null;
+  const safeUrl = safeHttpUrl(url);
+  if (!safeUrl) return null;
   return `<amp-story-page-outlink layout="nodisplay">
-          <a href="${url}" target="_blank">
-            ${text}
+          <a href="${safeUrl}" target="_blank">
+            ${escapeHtml(text)}
           </a>
         </amp-story-page-outlink>`;
 }
@@ -44,10 +67,11 @@ export function generateStoryExtensionMarkUp(media: any): string {
   switch (media.type) {
     case 'video':
     case 'upload-video':
+      if (!safeHttpUrl(media.url)) return '';
       storyMarkup = `
           <amp-video
             layout="responsive"
-            src="${media.url}"
+            src="${safeHttpUrl(media.url)}"
             height="480"
             width="270"
             autoplay>
@@ -56,9 +80,10 @@ export function generateStoryExtensionMarkUp(media: any): string {
       break;
     case 'image':
     case 'upload-image':
+      if (!safeHttpUrl(media.url)) return '';
       storyMarkup = `
           <amp-img
-            src="${media.url}"
+            src="${safeHttpUrl(media.url)}"
             height="480"
             width="270"
             layout="responsive">
@@ -68,7 +93,7 @@ export function generateStoryExtensionMarkUp(media: any): string {
     case 'youtube':
       storyMarkup = `
           <amp-youtube
-            data-videoid="${media.media_id}"
+            data-videoid="${safeMediaId(media.media_id)}"
             layout="responsive"
             width="480"
             height="270">
@@ -78,7 +103,7 @@ export function generateStoryExtensionMarkUp(media: any): string {
     case 'instagram':
       storyMarkup = `
           <amp-instagram
-            data-shortcode="${media.media_id}"
+            data-shortcode="${safeMediaId(media.media_id)}"
             layout="responsive"
             width="480"
             height="270">
@@ -88,7 +113,7 @@ export function generateStoryExtensionMarkUp(media: any): string {
     case 'twitter':
       storyMarkup = `
           <amp-twitter
-            data-tweetid="${media.media_id}"
+            data-tweetid="${safeMediaId(media.media_id)}"
             layout="responsive"
             width="480"
             height="270">
@@ -96,8 +121,9 @@ export function generateStoryExtensionMarkUp(media: any): string {
         `;
       break;
     case 'amp-story':
+      if (!safeHttpUrl(media.url)) return '';
       storyMarkup = `
-          <a href="${media.url}" />
+          <a href="${safeHttpUrl(media.url)}"></a>
         `;
       break;
     default:

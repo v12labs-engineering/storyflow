@@ -6,6 +6,7 @@ import Icon from '@components/Icon';
 import { useState } from 'react';
 import { supabase } from '@supabase/client';
 import { toast } from 'react-toastify';
+import React from 'react';
 
 export default function Feedback() {
     const [save, setSave] = useState<boolean>(false);

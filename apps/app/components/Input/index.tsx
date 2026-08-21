@@ -1,11 +1,12 @@
 import styles from './Input.module.css';
 import Icon from '@components/Icon';
+import React from 'react';
 interface InputProps {
     type?: string;
     icon?: string;
     placeholder?: string;
     value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 export default function Input({ type, icon, placeholder, value, onChange }: InputProps) {

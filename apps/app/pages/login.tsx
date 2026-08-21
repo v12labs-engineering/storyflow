@@ -11,12 +11,10 @@ import styles from '@styles/Login.module.css';
 const Login: NextPage = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [email, setEmail] = useState<string>('');
-    const notify = () => toast("Wow so easy!");
-
     const handleLogin = async (email: string) => {
         try {
             setLoading(true)
-            const { user, session, error } = await supabase.auth.signIn({ email }, {
+            const { error } = await supabase.auth.signIn({ email }, {
                 redirectTo: window.location.origin
             });
 

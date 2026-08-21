@@ -1,11 +1,12 @@
 import styles from './TextArea.module.css';
+import React from 'react';
 
 interface TextAreaProps {
     placeholder?: string;
     value?: string;
     rows?: number;
     cols?: number;
-    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 }
 
 export default function TextArea({ placeholder, value, rows = 5, cols, onChange }: TextAreaProps) {

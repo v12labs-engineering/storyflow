@@ -1,6 +1,6 @@
 import styles from './Story.module.css';
 import Icon from '@components/Icon';
-import { useState, useEffect, useRef, ReactNode } from 'react';
+import React, { useState, useRef, ReactNode } from 'react';
 import cn from 'classnames';
 
 interface StoryProps {
@@ -11,7 +11,7 @@ interface StoryProps {
 
 function Story({ className, children, showNavigation = false }: StoryProps) {
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const pages = useRef<HTMLLIElement[]>(Array.from(children as HTMLCollectionOf<HTMLLIElement>));
+    const pages = useRef<ReactNode[]>(React.Children.toArray(children));
 
     const navigateTo = (direction: 'next' | 'prev' | number): void => {
         if (typeof direction === 'number') {

@@ -56,7 +56,6 @@ class MyDocument extends Document {
               key={i}
             />
           ))}
-          <script src="./crisp.js"></script>
         </Head>
         <body>
           <Main />

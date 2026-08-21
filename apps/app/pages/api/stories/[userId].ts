@@ -8,7 +8,6 @@ const cors = Cors({
 });
 
 const withCors = (handlerFn: NextApiHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
-    console.log(req)
     return await cors(req, res, async () => {
         await handlerFn(req, res);
     });

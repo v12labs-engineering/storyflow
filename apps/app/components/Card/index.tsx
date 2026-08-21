@@ -10,7 +10,7 @@ interface CardProps {
     cardActions?: [{ name: string, action: () => Promise<void> }];
 }
 
-export default function Card({ id, title, type, description, url, cardActions }: CardProps) {
+export default function Card({ id, title, description, cardActions }: CardProps) {
     const cardActionToggle = (id: string) => {
         const cardMenu = document.getElementById(`menu-card-${id}`);
         if (cardMenu) {

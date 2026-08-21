@@ -37,7 +37,7 @@ export default function Header({ authState, email }: HeaderProps) {
             <a target="_blank" rel="noreferrer" href="https://amp.dev/documentation/tools/?format=stories">Tools</a>
           </li>
           <li className={styles.navItem}>
-            <a href="https://calendly.com/src200" target="_blank" rel="noreferrer">Schedule a demo</a>
+            <a href="https://github.com/v12labs-engineering/storyflow" target="_blank" rel="noreferrer">GitHub</a>
           </li>
           <li className={styles.navItem}>
             <a className={styles.feedbackItem}>Feedback</a>

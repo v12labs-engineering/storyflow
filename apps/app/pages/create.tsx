@@ -1,198 +1,174 @@
-import Input from '@components/Input';
-import Button from '@components/Button';
+/* eslint-disable @next/next/no-img-element */
+import DashboardShell from '@components/DashboardShell';
 import Icon from '@components/Icon';
-import Select from '@components/Select';
 import { supabase } from '@supabase/client';
 import { GetServerSideProps } from 'next';
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import styles from '@styles/Create.module.css';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import { getYoutubeId } from '@utils/index';
+import { isLocalDemoRequest, localDemoStories, localDemoUser } from '@lib/local-demo';
 
-interface CreateProps {
-    user: User;
-}
+interface CreateProps { user: User; demo?: boolean; }
+type MediaType = 'image' | 'upload-image' | 'video' | 'upload-video' | 'youtube' | 'amp-story';
 
-interface MediaOptions {
-    readonly value: string;
-    readonly label: string;
-    readonly placeholder: string;
-}
+export default function Create({ user, demo = false }: CreateProps) {
+  const router = useRouter();
+  const inputFileRef = useRef<HTMLInputElement | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [storyUrl, setStoryUrl] = useState('');
+  const [mediaType, setMediaType] = useState<MediaType>('image');
+  const [ctaLink, setCtaLink] = useState('');
+  const [ctaText, setCtaText] = useState('Learn more');
 
-export default function Create({ user }: CreateProps) {
-    const router = useRouter();
-    const inputFileRef = useRef<HTMLInputElement | null>(null);
-    const [saving, setSaving] = useState<boolean>(false);
-    const [title, setTitle] = useState<string>('');
-    const [description, setDescription] = useState<string>('');
-    const [storyUrl, setStoryUrl] = useState<string>('');
-    const [selectedMediaOption, setSelectedMediaOption] = useState<MediaOptions>();
-    const [ctaLink, setCtaLink] = useState<string>('');
-    const [ctaText, setCtaText] = useState<string>('');
-    let mediaId = '';
+  useEffect(() => {
+    if (!demo || typeof router.query.source !== 'string') return;
+    const source = localDemoStories.find((story) => story.id === router.query.source);
+    if (source) {
+      setTitle(`${source.name} copy`);
+      setDescription(source.description);
+      setStoryUrl(source.thumbnail);
+    }
+  }, [demo, router.query.source]);
 
-    const mediaOptions: MediaOptions[] = [
-        { value: 'amp-story', label: 'Story url', placeholder: 'Paste existing story url' },
-        { value: 'image', label: 'Image url', placeholder: 'Paste Image link' },
-        { value: 'upload-image', label: 'Upload an image', placeholder: 'Upload an image' },
-        { value: 'video', label: 'Video url', placeholder: 'Paste Video link' },
-        { value: 'upload-video', label: 'Upload a video', placeholder: 'Upload a video' },
-        { value: 'youtube', label: 'YouTube', placeholder: 'Paste Youtube link' },
-        // { value: 'instagram', label: 'Instagram', placeholder: 'Paste Instagram post URL' },
-        // { value: 'twitter', label: 'Twitter', placeholder: 'Paste tweet URL' },
-        // { value: 'tiktok', label: 'TikTok', placeholder: 'Paste TikTok URL' }
-    ];
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files?.length) return;
+    if (demo) {
+      setStoryUrl('/story-thumbnails/design-systems.jpg');
+      toast.success('Demo media attached locally.');
+      return;
+    }
+    try {
+      const response = await fetch(`/api/backblaze/upload-media?id=${user.id}`, {
+        method: 'POST', headers: { 'content-type': files[0].type }, body: files[0],
+      });
+      if (response.ok) {
+        const fileInfo = await response.json();
+        setStoryUrl(fileInfo.fileUrl);
+        toast.success('Media uploaded.');
+      } else toast.error('Unable to upload this media.');
+    } catch (error: any) {
+      toast.error(error.message || 'Unable to upload this media.');
+    }
+  };
 
-    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        try {
-            e.preventDefault();
-            const files = e.target.files;
-            if (!files?.length) {
-                toast('Please select the file you want to upload', { type: 'error' });
-                return;
-            }
+  const saveStory = async () => {
+    if (!title.trim() || !description.trim()) {
+      toast.error('Add a title and description before saving.');
+      return;
+    }
+    setSaving(true);
 
-            const response = await fetch(`/api/backblaze/upload-media?id=${user.id}`, {
-                method: 'POST',
-                headers: {
-                    'content-type': files[0].type
-                },
-                body: files[0]
-            });
-            if (response.ok) {
-                const fileInfo = await response.json();
-                setStoryUrl(fileInfo.fileUrl)
-                toast.success('Uploaded successfully');
-            }
-        } catch (err: any) {
-            console.log(err);
-            toast(err.message || 'Something went wrong while uploading file. Please try again', { type: 'error' });
-        }
+    if (demo) {
+      const existing = window.localStorage.getItem('storyflow-demo-stories');
+      const localStories = existing ? JSON.parse(existing) : [];
+      localStories.unshift({
+        id: `local-${Date.now()}`,
+        name: title.trim(),
+        description: description.trim(),
+        url: storyUrl || '/story-thumbnails/design-systems.jpg',
+        thumbnail: storyUrl || '/story-thumbnails/design-systems.jpg',
+        status: 'Draft',
+        publishedAt: 'Just now',
+        lastEdited: 'Just now',
+        views: 0,
+        completionRate: 0,
+        ctaClicks: 0,
+        user_id: user.id,
+      });
+      window.localStorage.setItem('storyflow-demo-stories', JSON.stringify(localStories));
+      await router.push('/stories?created=1');
+      return;
+    }
+
+    const story = {
+      name: title.trim(), description: description.trim(), type: mediaType,
+      url: storyUrl, media_id: mediaType === 'youtube' ? getYoutubeId(storyUrl) : '',
+      cta_link: ctaLink, cta_text: ctaText, user_id: user.id,
     };
+    const { data, error } = await supabase.from('stories').insert(story);
+    if (data) {
+      await fetch(`/api/backblaze/upload?id=${user.id}`, { method: 'POST' });
+      toast.success('Story created.');
+      await router.push('/stories');
+    } else {
+      console.error(error);
+      toast.error('Unable to create this story.');
+      setSaving(false);
+    }
+  };
 
-    const saveStory = async () => {
-        setSaving(true);
-        switch (selectedMediaOption?.value) {
-            case 'youtube':
-                mediaId = getYoutubeId(storyUrl);
-                break;
-            default:
-                break;
-        }
+  const previewImage = storyUrl && storyUrl.startsWith('/') ? storyUrl : '/story-thumbnails/design-systems.jpg';
 
-        const story = {
-            name: title,
-            description: description,
-            type: selectedMediaOption?.value,
-            url: storyUrl,
-            media_id: mediaId,
-            cta_link: ctaLink,
-            cta_text: ctaText,
-            user_id: user.id,
-        };
+  return (
+    <DashboardShell email={user.email}>
+      <section className={styles.page} aria-labelledby="create-title">
+        <button className={styles.backButton} type="button" onClick={() => router.push('/stories')}><Icon type="arrow-left" size={17} /> Back to stories</button>
+        <header className={styles.header}>
+          <div><p className={styles.eyebrow}>Story builder</p><h1 id="create-title">Create a new story</h1><p>Start with the essentials. You can refine pages and interactions in the editor.</p></div>
+          <span className={styles.saveState}><Icon type="check-circle" size={17} /> Local draft</span>
+        </header>
 
-        const { data, error } = await supabase.from('stories').insert(story);
-        if (data) {
-            await fetch(`/api/backblaze/upload?id=${user.id}`);
-            toast.success('Story created successfully');
-            router.push('/stories');
-        } else {
-            toast('Something went wrong. Please try again', { type: 'error' });
-            // delete created record
-            // await supabase.from('stories').delete().match({ id: story_id });
-            console.error(error);
-        }
+        <div className={styles.builderGrid}>
+          <form className={styles.formCard} onSubmit={(event) => { event.preventDefault(); saveStory(); }}>
+            <div className={styles.sectionHeading}><span>1</span><div><h2>Story details</h2><p>Name this story and give collaborators context.</p></div></div>
+            <label className={styles.field}><span>Story title</span><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="For example: Product launch" required /></label>
+            <label className={styles.field}><span>Description</span><textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What will viewers learn from this story?" rows={4} required /></label>
 
-        setSaving(false);
-    };
+            <div className={styles.divider} />
+            <div className={styles.sectionHeading}><span>2</span><div><h2>Starting media</h2><p>Choose a source for the first page.</p></div></div>
+            <label className={styles.field}><span>Media type</span><select value={mediaType} onChange={(event) => setMediaType(event.target.value as MediaType)}>
+              <option value="image">Image URL</option><option value="upload-image">Upload image</option><option value="video">Video URL</option><option value="upload-video">Upload video</option><option value="youtube">YouTube</option><option value="amp-story">Existing AMP story</option>
+            </select></label>
+            {(mediaType === 'upload-image' || mediaType === 'upload-video') ? (
+              <div className={styles.uploadField}>
+                <input type="file" ref={inputFileRef} onChange={handleFileSelect} accept={mediaType === 'upload-image' ? 'image/*' : 'video/*'} />
+                <Icon type="upload-cloud" size={24} /><strong>Choose media</strong><small>Images or video up to 15 MB</small>
+              </div>
+            ) : (
+              <label className={styles.field}><span>Media URL</span><input type="url" value={storyUrl} onChange={(event) => setStoryUrl(event.target.value)} placeholder="https://example.com/media" /></label>
+            )}
 
-    return (
-        <div className="">
-            <div className={styles.create}>
-                <h3>Add your Story</h3>
-                <form className={styles.inputs}
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        title && selectedMediaOption?.value && (storyUrl || mediaId) && saveStory();
-                    }}>
-                    <Input
-                        placeholder="Title"
-                        icon="edit-3"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
-                    <Input
-                        placeholder="Description"
-                        icon="edit-3"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
-                    <Select
-                        placeholder="Select Media Type"
-                        onChange={option => setSelectedMediaOption(option as MediaOptions)}
-                        options={mediaOptions}
-                    />
-                    {(selectedMediaOption?.value === 'image' || selectedMediaOption?.value === 'video') && (<>
-                        <Input
-                            type="url"
-                            placeholder={selectedMediaOption?.placeholder || 'Media Link'}
-                            icon="link"
-                            value={storyUrl}
-                            onChange={(e) => setStoryUrl(e.target.value)}
-                        />
-                    </>)}
+            {mediaType !== 'amp-story' && <>
+              <div className={styles.twoFields}>
+                <label className={styles.field}><span>Call-to-action label</span><input value={ctaText} onChange={(event) => setCtaText(event.target.value)} placeholder="Learn more" /></label>
+                <label className={styles.field}><span>Call-to-action URL</span><input type="url" value={ctaLink} onChange={(event) => setCtaLink(event.target.value)} placeholder="https://example.com" /></label>
+              </div>
+            </>}
 
-                    {(selectedMediaOption?.value === 'upload-image' || selectedMediaOption?.value === 'upload-video') && (<>
-                        {/* <Input
-                            placeholder="Call to Action Link"
-                            icon="link"
-                            value={ctaLink}
-                            onChange={(e) => setCtaLink(e.target.value)}
-                        /> */}
-                        <input type="file" ref={inputFileRef} onChange={handleFileSelect} />
-                    </>)}
-                    {selectedMediaOption?.value !== 'amp-story' && (<>
-                        <Input
-                            placeholder="Call to Action Link"
-                            icon="link"
-                            value={ctaLink}
-                            onChange={(e) => setCtaLink(e.target.value)}
-                        />
-                        <Input
-                            placeholder="Call to Action Link Text"
-                            icon="edit-3"
-                            value={ctaText}
-                            onChange={(e) => setCtaText(e.target.value)}
-                        />
-                    </>)}
-                    <div className={styles.submitBtn}>
-                        <Button
-                            size="large"
-                            disabled={saving}
-                            type='submit'>
-                            <Icon type="plus-circle" />
-                            <span>{saving ? 'Saving...' : 'Save'}</span>
-                        </Button>
-                    </div>
-                </form>
+            <div className={styles.formActions}>
+              <button type="button" className={styles.secondaryButton} onClick={() => router.push('/stories')}>Cancel</button>
+              <button type="submit" className={styles.primaryButton} disabled={saving}><Icon type="arrow-right" size={18} /> {saving ? 'Creating…' : 'Create draft'}</button>
             </div>
-            {/* <div className="bg-red-800">
-                <h1 className="text-3xl underline">
-                    Hello world!
-                </h1>
-                <h3>Preview</h3>
-            </div> */}
+          </form>
+
+          <aside className={styles.previewCard} aria-label="Story preview">
+            <div className={styles.previewHeading}><div><span>Live preview</span><strong>Mobile story cover</strong></div><Icon type="smartphone" size={21} /></div>
+            <div className={styles.previewFrame}>
+              <img src={previewImage} alt="" />
+              <div className={styles.previewCopy}><small>ACME CLOUD</small><h2>{title || 'Your story title'}</h2><p>{description || 'Your story description will appear here.'}</p><span>{ctaText || 'Learn more'}</span></div>
+            </div>
+            <div className={styles.checklist}>
+              <h2>Ready to build</h2>
+              <p><Icon type="check-circle" size={17} /> Responsive 9:16 cover</p>
+              <p><Icon type="check-circle" size={17} /> Draft-first publishing</p>
+              <p><Icon type="check-circle" size={17} /> Widget-ready output</p>
+            </div>
+          </aside>
         </div>
-    )
+      </section>
+    </DashboardShell>
+  );
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-    const { user } = await supabase.auth.api.getUserByCookie(req);
-    if (!user) {
-        return { props: {}, redirect: { destination: '/login' } };
-    }
-
-    return { props: { user } };
-}
+  if (isLocalDemoRequest(req)) return { props: { user: localDemoUser, demo: true } };
+  const { user } = await supabase.auth.api.getUserByCookie(req);
+  if (!user) return { props: {}, redirect: { destination: '/login' } };
+  return { props: { user } };
+};

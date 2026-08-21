@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import { useState } from 'react';
 import Button from '@components/Button';
 import Input from '@components/Input';
 import { supabase } from '@supabase/client';
@@ -12,7 +12,7 @@ export default function LandingPageInput() {
     const handleLogin = async (email: string) => {
         try {
             setLoading(true)
-            const { user, session, error } = await supabase.auth.signIn({ email }, {
+            const { error } = await supabase.auth.signIn({ email }, {
                 redirectTo: window.location.origin
             });
 

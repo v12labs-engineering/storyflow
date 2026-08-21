@@ -1,6 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import b2 from '@backblaze/client';
 import { v4 as uuidv4 } from 'uuid';
+import { requireMatchingUser } from '@lib/api-auth';
+
+const MAX_FILE_BYTES = 15_000_000;
+const ALLOWED_MEDIA_TYPES = new Set([
+    'image/gif',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'video/mp4',
+    'video/webm',
+]);
 
 export const config = {
     api: {
@@ -10,10 +21,24 @@ export const config = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        // get user Id
-        const { id } = req.query;
+        if (req.method !== 'POST') {
+            res.setHeader('Allow', 'POST');
+            return res.status(405).send({ error: 'Method not allowed' });
+        }
+
+        const id = await requireMatchingUser(req, res);
         if (!id) {
-            throw new Error('No user id provided');
+            return;
+        }
+
+        const contentType = req.headers['content-type']?.split(';')[0];
+        if (!contentType || !ALLOWED_MEDIA_TYPES.has(contentType)) {
+            return res.status(415).send({ error: 'Unsupported media type' });
+        }
+
+        const contentLength = Number(req.headers['content-length'] ?? 0);
+        if (contentLength > MAX_FILE_BYTES) {
+            return res.status(413).send({ error: 'File size should not exceed 15 MB.' });
         }
 
         // reconstruct file buffer from stream
@@ -33,8 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
         });
 
-        if (file && file.length > 15000000) {
-            throw new Error('File size should not exceed 15 MB.');
+        if (file.length > MAX_FILE_BYTES) {
+            return res.status(413).send({ error: 'File size should not exceed 15 MB.' });
         }
 
         // must authorize first (authorization lasts 24 hrs)
@@ -53,9 +78,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             uploadUrl: uploadUrl,
             uploadAuthToken: authorizationToken,
             fileName: uuidv4(),
-            mime: req.headers['content-type'] as string,
+            mime: contentType,
             data: file,
-            contentLength: 15000000,
+            contentLength: file.length,
             onUploadProgress: (event: any) => {
                 console.log(`Uploaded ${event.loaded} bytes`);
             }

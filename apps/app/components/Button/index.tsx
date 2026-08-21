@@ -3,7 +3,7 @@ import styles from './Button.module.css';
 
 interface ButtonProps {
     children: React.ReactNode;
-    onClick?: (e: React.MouseEvent) => void;
+    onClick?: () => void;
     disabled?: boolean;
     type?: 'button' | 'submit' | 'reset';
     size?: 'small' | 'medium' | 'large';

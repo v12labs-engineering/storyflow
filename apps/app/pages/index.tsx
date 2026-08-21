@@ -71,15 +71,15 @@ const Home: NextPage = () => {
         <div className={styles.main}>
           <div className={styles.title}>
             <h1>
-              Need a help to create your first story<span>?</span>
+              Need help creating your first story<span>?</span>
               <u>
                 <p>
-                  <a href="https://calendly.com/src200" target="_blank" rel="noreferrer">Schedule a demo</a>
+                  <a href="https://github.com/v12labs-engineering/storyflow/issues" target="_blank" rel="noreferrer">Open an issue</a>
                 </p>
               </u>
             </h1>
             <p>
-              For any other further assistance contact <u><a href="mailto:schalla200@gamil.com">me</a></u>
+              Questions and reproducible bug reports are welcome in the public issue tracker.
             </p>
             <LandingPageInput />
           </div>

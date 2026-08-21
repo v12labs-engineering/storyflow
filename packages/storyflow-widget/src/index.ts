@@ -14,10 +14,11 @@ let media: Media[] = [];
 
 function getUserId(): string {
     const script = document.getElementById('storyflow-script');
-    return script?.getAttribute("data-storyflow-user") || 'c9477f1b-ab00-40f9-8bd5-fe590fff1ddd';
+    return script?.getAttribute("data-storyflow-user") || '';
 }
 
 async function getStories(): Promise<string[]> {
+    if (!getUserId()) return [];
     const stories = await fetch(`https://app.storyflow.video/api/stories/${getUserId()}`);
     return await stories.json();
 }

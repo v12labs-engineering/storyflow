@@ -12,15 +12,24 @@ import React from 'react';
 
 interface LayoutProps {
   children: React.ReactNode;
+  demo?: boolean;
+  demoEmail?: string;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, demo = false, demoEmail }: LayoutProps) {
   const router = useRouter();
   const [authenticatedState, setAuthenticatedState] = useState<string>('not-authenticated');
   const [userEmail, setUserEmail] = useState<string>();
   const [isEditor, setIsEditor] = useState<boolean>();
 
   useEffect(() => {
+    if (demo) {
+      setAuthenticatedState('authenticated');
+      setUserEmail(demoEmail);
+      setIsEditor(router.asPath.includes('editor'));
+      return;
+    }
+
     /* fires when a user signs in or out */
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       onAuthChange(event, session);
@@ -43,7 +52,7 @@ export default function Layout({ children }: LayoutProps) {
     return () => {
       authListener && authListener.unsubscribe();
     }
-  }, [router]);
+  }, [router, demo, demoEmail]);
 
   async function checkUser() {
     /* when the component loads, checks user to show or hide login link */
@@ -62,7 +71,11 @@ export default function Layout({ children }: LayoutProps) {
       credentials: 'same-origin',
       body: JSON.stringify({ event, session }),
     })
-  };
+  }
+
+  if (router.pathname === '/stories' || router.pathname === '/create') {
+    return <>{children}</>;
+  }
 
   return (
     <>
@@ -81,6 +94,7 @@ export default function Layout({ children }: LayoutProps) {
             <Image src="/try-it-out.svg" alt="try it out" width={100} height={100} />
           </div>
           <Script id="storyflow-script" src={process.env.NEXT_PUBLIC_STORYFLOW_WIDGET} />
+          <Script id="storyflow-crisp" src="/crisp.js" strategy="lazyOnload" />
         </div>
       )}
       {isEditor && children}

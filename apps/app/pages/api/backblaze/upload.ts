@@ -1,16 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import b2 from '@backblaze/client';
 import generateAMPhtml from '@lib/generateAMPhtml';
+import { requireMatchingUser } from '@lib/api-auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        // get user Id
-        const { id } = req.query;
-        if (!id) {
-            throw new Error('No user id provided');
+        if (req.method !== 'POST') {
+            res.setHeader('Allow', 'POST');
+            return res.status(405).json({ error: 'Method not allowed' });
         }
 
-        const html = await generateAMPhtml(id as string);
+        const id = await requireMatchingUser(req, res);
+        if (!id) {
+            return;
+        }
+
+        const html = await generateAMPhtml(id);
 
         // must authorize first (authorization lasts 24 hrs)
         await b2.authorize();
